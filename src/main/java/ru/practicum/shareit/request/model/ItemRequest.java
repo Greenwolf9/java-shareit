@@ -1,8 +1,9 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.request.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.Instant;
 
@@ -12,10 +13,9 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemRequestDto {
-
+public class ItemRequest {
     private long requestId;
     private String requestDescr;
-    private long userId;
+    private User requestedBy;
     private Instant createdAt;
 }
