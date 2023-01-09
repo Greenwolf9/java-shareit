@@ -4,7 +4,7 @@ import ru.practicum.shareit.booking.model.Booking;
 
 import java.util.List;
 
-public class BookingServiceImpl implements BookingService{
+public class BookingServiceImpl implements BookingService {
     @Override
     public Booking getBookingById(long bookingId) {
         return null;

@@ -4,7 +4,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
 
-public class ItemRequestServiceImpl implements ItemRequestService{
+public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequest getItemRequestById(long requestId) {
         return null;
