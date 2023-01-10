@@ -46,7 +46,6 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto updateUser(@PathVariable int userId, @RequestBody UserDto userDto) throws AlreadyExistException, NotFoundException {
-        //user.setId(userId);
         log.info("PATCH /users/{userId}: " + userId);
         return service.updateUser(userId, userDto);
     }
