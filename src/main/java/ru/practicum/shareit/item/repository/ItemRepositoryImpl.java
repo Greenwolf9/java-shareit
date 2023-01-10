@@ -17,17 +17,17 @@ public class ItemRepositoryImpl implements ItemRepository {
     private int itemId = 0;
 
     @Override
-    public Item findItem(long itemId) {
+    public Item findById(long itemId) {
         return itemsList.get(itemId);
     }
 
     @Override
     public Collection<Item> getAllItems() {
-        return itemsList.values();
+        return new ArrayList<>(itemsList.values());
     }
 
     @Override
-    public Collection<Item> findAllItems(long userId) {
+    public Collection<Item> findAllItemsByUserId(long userId) {
         return itemsList.values().stream()
                 .filter(x -> x.getOwner().getId() == userId)
                 .collect(Collectors.toList());
@@ -58,7 +58,6 @@ public class ItemRepositoryImpl implements ItemRepository {
         itemsList.remove(itemId);
     }
 
-    //------------------------------------------------------------------------------------------
     private long generateId() {
         return ++itemId;
     }

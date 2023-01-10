@@ -8,11 +8,11 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.Collection;
 
 public interface ItemRepository {
-    Item findItem(long itemId);
+    Item findById(long itemId);
 
     Collection<Item> getAllItems();
 
-    Collection<Item> findAllItems(long userId);
+    Collection<Item> findAllItemsByUserId(long userId);
 
     Item saveItem(Item item) throws ValidationException, AlreadyExistException;
 

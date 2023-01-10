@@ -18,11 +18,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Collection<User> findAll() {
-        return users.values();
+        return new ArrayList<>(users.values());
     }
 
     @Override
-    public User findUserById(long userId) {
+    public User findById(long userId) {
         return users.get(userId);
     }
 
@@ -50,7 +50,6 @@ public class UserRepositoryImpl implements UserRepository {
         users.remove(userId);
     }
 
-    // -----------------------------------------------------------------------------------------
     private long generateId() {
         return ++userId;
     }

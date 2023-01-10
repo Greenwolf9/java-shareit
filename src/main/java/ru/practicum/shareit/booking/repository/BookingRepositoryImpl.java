@@ -27,7 +27,7 @@ public class BookingRepositoryImpl implements BookingRepository {
     }
 
     @Override
-    public Booking deleteBooking(long bookingId) {
-        return null;
+    public void deleteBooking(long bookingId) {
+
     }
 }

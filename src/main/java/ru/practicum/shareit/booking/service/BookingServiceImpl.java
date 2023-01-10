@@ -26,7 +26,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking deleteBooking(long bookingId) {
-        return null;
+    public void deleteBooking(long bookingId) {
+
     }
 }

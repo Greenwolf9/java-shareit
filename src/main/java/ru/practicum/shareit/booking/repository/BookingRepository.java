@@ -13,5 +13,5 @@ public interface BookingRepository {
 
     Booking updateBooking(long bookingId);
 
-    Booking deleteBooking(long bookingId);
+    void deleteBooking(long bookingId);
 }

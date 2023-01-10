@@ -28,7 +28,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(long itemId) {
-        final Item item = itemRepository.findItem(itemId);
+        final Item item = itemRepository.findById(itemId);
         return ItemMapper.toItemDto(item);
     }
 
@@ -40,13 +40,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getAllItemsByUserId(long userId) {
-        final Collection<Item> items = itemRepository.findAllItems(userId);
+        final Collection<Item> items = itemRepository.findAllItemsByUserId(userId);
         return ItemMapper.toItemDtoList(items);
     }
 
     @Override
     public ItemDto saveItem(long userId, ItemDto itemDto) throws ValidationException, AlreadyExistException, NotFoundException {
-        final User user = userRepository.findUserById(userId);
+        final User user = userRepository.findById(userId);
         if (user == null) {
             throw new NotFoundException("User of this item is not found. Please check.");
         }
@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(long itemId, ItemDto itemDto, long userId) throws NotFoundException {
-        final Item itemToBeUpdated = itemRepository.findItem(itemId);
+        final Item itemToBeUpdated = itemRepository.findById(itemId);
         if (itemToBeUpdated.getOwner().getId() != userId) {
             throw new NotFoundException("Wrong userId. Please check");
         }

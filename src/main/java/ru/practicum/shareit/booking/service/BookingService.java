@@ -13,5 +13,5 @@ public interface BookingService {
 
     Booking updateBooking(long bookingId);
 
-    Booking deleteBooking(long bookingId);
+    void deleteBooking(long bookingId);
 }

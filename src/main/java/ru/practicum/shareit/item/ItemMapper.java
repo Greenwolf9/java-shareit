@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.model.Item;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemMapper {
 
@@ -28,10 +29,8 @@ public class ItemMapper {
     }
 
     public static List<ItemDto> toItemDtoList(Collection<Item> items) {
-        final List<ItemDto> list = new ArrayList<>();
-        for (Item item : items) {
-            list.add(toItemDto(item));
-        }
-        return list;
+        return items.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
     }
 }

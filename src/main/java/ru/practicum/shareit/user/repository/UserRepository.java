@@ -11,7 +11,7 @@ public interface UserRepository {
 
     Collection<User> findAll();
 
-    User findUserById(long userId);
+    User findById(long userId);
 
     User saveUser(User user) throws AlreadyExistException, ValidationException;
 

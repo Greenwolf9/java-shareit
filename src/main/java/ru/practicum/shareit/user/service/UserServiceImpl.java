@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(int userId) {
-        final User user = repository.findUserById(userId);
+        final User user = repository.findById(userId);
         return UserMapper.toUserDto(user);
     }
 
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(int userId, UserDto userDto) throws AlreadyExistException, NotFoundException {
-        User userToBeUpdated = Optional.of(repository.findUserById(userId))
+        User userToBeUpdated = Optional.of(repository.findById(userId))
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
 
         if (userDto.getEmail() != null) {
