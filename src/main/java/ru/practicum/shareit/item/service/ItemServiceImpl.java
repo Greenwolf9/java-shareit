@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.AlreadyExistException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.CommentMapper;
@@ -21,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,14 +60,13 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDetails> getAllItemsByUserId(Long userId) {
         List<Item> itemList = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
         return itemList.stream().map(item -> new ItemDetails(item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable(),
-                findLastBooking(bookingRepository.findAllByItemId(item.getId()), userId, item.getOwner().getId()),
-                findNextBooking(bookingRepository.findAllByItemId(item.getId()), userId, item.getOwner().getId()),
-                CommentMapper.toCommentShortList(commentRepository.findAllByItemId(item.getId()))))
+                        item.getName(),
+                        item.getDescription(),
+                        item.getAvailable(),
+                        findLastBooking(bookingRepository.findAllByItemId(item.getId()), userId, item.getOwner().getId()),
+                        findNextBooking(bookingRepository.findAllByItemId(item.getId()), userId, item.getOwner().getId()),
+                        CommentMapper.toCommentShortList(commentRepository.findAllByItemId(item.getId()))))
                 .collect(Collectors.toList());
-
     }
 
     @Override
@@ -112,7 +109,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDetails getNextAndLastBookingsOfItem(long itemId, long userId) throws NotFoundException{
+    public ItemDetails getNextAndLastBookingsOfItem(long itemId, long userId) throws NotFoundException {
         List<Booking> bookingList = bookingRepository.findAllByItemId(itemId);
         final Item item = itemRepository
                 .findById(itemId)
@@ -128,8 +125,8 @@ public class ItemServiceImpl implements ItemService {
                 CommentMapper.toCommentShortList(commentRepository.findAllByItemId(item.getId())));
     }
 
-    private BookingDetails findLastBooking(List<Booking> bookingList, long userId, long ownerId){
-        if(userId != ownerId){
+    private BookingDetails findLastBooking(List<Booking> bookingList, long userId, long ownerId) {
+        if (userId != ownerId) {
             return null;
         }
         return bookingList.stream()
@@ -138,8 +135,8 @@ public class ItemServiceImpl implements ItemService {
                 .map(n -> new BookingDetails(n.getId(), n.getBooker().getId())).orElse(null);
     }
 
-    private BookingDetails findNextBooking(List<Booking> bookingList, long userId, long ownerId){
-        if(userId != ownerId){
+    private BookingDetails findNextBooking(List<Booking> bookingList, long userId, long ownerId) {
+        if (userId != ownerId) {
             return null;
         }
         return bookingList.stream()
@@ -148,7 +145,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentShort addComments(Long userId, Long itemId, CommentDto commentDto) throws ValidationException, NotFoundException {
+    public CommentShort addComments(Long userId, Long itemId, CommentDto commentDto)
+            throws ValidationException, NotFoundException {
         if (commentDto.getText() == null || commentDto.getText().isEmpty()) {
             throw new ValidationException("Text is empty");
         }
@@ -161,7 +159,6 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
-
         // проверяем, брал ли данный пользователь эту вещь в аренду, в т.ч. закончилась ли аренда
         if (bookingRepository.findAllByItemId(itemId)
                 .stream()
@@ -175,8 +172,7 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(user);
         return CommentMapper.toCommentShort(commentRepository.save(comment));
     }
-
-
+    
     private void validateItem(Item item) throws ValidationException {
         if (item.getName().isEmpty() && item.getName().equals("")) {
             throw new ValidationException("Name is invalid. Please check.");
