@@ -87,7 +87,7 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
-        if (itemToBeUpdated.getOwner().getId() != userId) {
+        if (!itemToBeUpdated.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Wrong userId. Please check");
         }
         if (itemDto.getName() != null && !itemDto.getName().equals(itemToBeUpdated.getName())) {
