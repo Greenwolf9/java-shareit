@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.AlreadyExistException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentShort;
+import ru.practicum.shareit.item.dto.ItemDetails;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -27,7 +30,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto addNewItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto addNewItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @RequestBody ItemDto itemDto) throws ValidationException,
             AlreadyExistException,
             NotFoundException {
@@ -35,20 +38,28 @@ public class ItemController {
         return itemService.saveItem(userId, itemDto);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentShort addNewComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                      @PathVariable Long itemId,
+                                      @RequestBody CommentDto commentDto) throws ValidationException, NotFoundException {
+        return itemService.addComments(userId, itemId, commentDto);
+    }
+
     @GetMapping("/{itemId}")
-    public ItemDto getItemDto(@PathVariable long itemId) {
+    public ItemDetails getItemDto(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                  @PathVariable Long itemId) throws NotFoundException {
         log.info("GET / items/{id}: " + itemId);
-        return itemService.getItemById(itemId);
+        return itemService.getNextAndLastBookingsOfItem(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemDto> getAllItemOfUser(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDetails> getAllItemOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET / items: posted by user" + userId);
         return itemService.getAllItemsByUserId(userId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                               @PathVariable long itemId,
                               @RequestBody ItemDto itemDto) throws NotFoundException {
         log.info("PATCH / items/{itemId}: " + itemId + " posted by user" + userId);
@@ -56,7 +67,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchOfItems(@RequestHeader("X-Sharer-User-Id") long userId,
+    public List<ItemDto> searchOfItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @RequestParam String text) {
         List<ItemDto> itemsDto = itemService.getAllItems();
 

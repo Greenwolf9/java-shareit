@@ -11,8 +11,6 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,20 +28,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(int userId) {
-        final User user = repository.findById(userId);
+    public UserDto getUserById(Long userId) throws NotFoundException {
+        final User user = repository.findById(userId)
+                .stream()
+                .findAny()
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
         return UserMapper.toUserDto(user);
     }
 
     @Override
-    public UserDto saveUser(UserDto userDto) throws ValidationException, AlreadyExistException {
+    public UserDto saveUser(UserDto userDto) throws ValidationException {
         final User user = UserMapper.toUser(userDto);
-        return UserMapper.toUserDto(repository.saveUser(user));
+        validateUser(user);
+        return UserMapper.toUserDto(repository.save(user));
     }
 
     @Override
-    public UserDto updateUser(int userId, UserDto userDto) throws AlreadyExistException, NotFoundException {
-        User userToBeUpdated = Optional.of(repository.findById(userId))
+    public UserDto updateUser(Long userId, UserDto userDto) throws AlreadyExistException, NotFoundException {
+        User userToBeUpdated = repository.findById(userId).stream().findAny()
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
 
         if (userDto.getEmail() != null) {
@@ -53,22 +55,26 @@ public class UserServiceImpl implements UserService {
         if (userDto.getName() != null) {
             userToBeUpdated.setName(userDto.getName());
         }
-        return UserMapper.toUserDto(repository.updateUser(userToBeUpdated));
+        return UserMapper.toUserDto(repository.save(userToBeUpdated));
     }
-
 
     @Override
-    public void deleteUser(int userId) {
-        repository.deleteUser(userId);
+    public void deleteUser(Long userId) {
+        repository.deleteById(userId);
     }
 
-    //---------------------------------------------------------------------------------
     private void checkIfEmailAlreadyExist(String email) throws AlreadyExistException {
         if (repository.findAll()
                 .stream()
                 .map(User::getEmail)
                 .anyMatch(x -> x.equals(email))) {
             throw new AlreadyExistException("User with email " + email + " already exists");
+        }
+    }
+
+    private void validateUser(User user) throws ValidationException {
+        if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
+            throw new ValidationException("Email is invalid.");
         }
     }
 }

@@ -24,7 +24,7 @@ public class ItemMapper {
                 itemDto.getDescription(),
                 itemDto.getAvailable(),
                 itemDto.getOwner(),
-                itemDto.getRequest() != null ? itemDto.getRequest() : null);
+                itemDto.getItemRequest() != null ? itemDto.getItemRequest() : null);
     }
 
     public static List<ItemDto> toItemDtoList(Collection<Item> items) {

@@ -3,21 +3,27 @@ package ru.practicum.shareit.item.service;
 import ru.practicum.shareit.exception.AlreadyExistException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentShort;
+import ru.practicum.shareit.item.dto.ItemDetails;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 
 import java.util.List;
 
 public interface ItemService {
 
-    ItemDto getItemById(long itemId);
+    ItemDto getItemById(Long itemId) throws NotFoundException;
 
     List<ItemDto> getAllItems();
 
-    List<ItemDto> getAllItemsByUserId(long userId);
+    List<ItemDetails> getAllItemsByUserId(Long userId);
 
-    ItemDto saveItem(long userId, ItemDto itemDto) throws ValidationException, AlreadyExistException, NotFoundException;
+    ItemDto saveItem(Long userId, ItemDto itemDto) throws ValidationException, AlreadyExistException, NotFoundException;
 
-    ItemDto updateItem(long itemId, ItemDto itemDto, long userId) throws NotFoundException;
+    ItemDto updateItem(Long itemId, ItemDto itemDto, Long userId) throws NotFoundException;
 
-    void deleteItem(long itemId);
+    void deleteItem(Long itemId);
+    ItemDetails getNextAndLastBookingsOfItem(long itemId, long userId) throws NotFoundException;
+    CommentShort addComments(Long userId, Long itemId, CommentDto commentDto) throws ValidationException, NotFoundException;
 }

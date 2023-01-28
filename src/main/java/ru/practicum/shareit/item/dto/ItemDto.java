@@ -14,10 +14,10 @@ import ru.practicum.shareit.user.model.User;
 @AllArgsConstructor
 public class ItemDto {
 
-    private long id;
+    private Long id;
     private String name;
     private String description;
     private Boolean available;
     private User owner;
-    private ItemRequest request;
+    private ItemRequest itemRequest;
 }
