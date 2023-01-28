@@ -145,8 +145,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentShort addComments(Long userId, Long itemId, CommentDto commentDto)
-            throws ValidationException, NotFoundException {
+    public CommentShort addComments(Long userId, Long itemId, CommentDto commentDto) throws ValidationException, NotFoundException {
         if (commentDto.getText() == null || commentDto.getText().isEmpty()) {
             throw new ValidationException("Text is empty");
         }
@@ -159,7 +158,6 @@ public class ItemServiceImpl implements ItemService {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
-        // проверяем, брал ли данный пользователь эту вещь в аренду, в т.ч. закончилась ли аренда
         if (bookingRepository.findAllByItemId(itemId)
                 .stream()
                 .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
@@ -172,7 +170,7 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(user);
         return CommentMapper.toCommentShort(commentRepository.save(comment));
     }
-    
+
     private void validateItem(Item item) throws ValidationException {
         if (item.getName().isEmpty() && item.getName().equals("")) {
             throw new ValidationException("Name is invalid. Please check.");
