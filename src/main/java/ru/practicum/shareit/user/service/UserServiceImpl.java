@@ -30,8 +30,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserById(Long userId) throws NotFoundException {
         final User user = repository.findById(userId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
         return UserMapper.toUserDto(user);
     }
@@ -45,9 +43,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(Long userId, UserDto userDto) throws AlreadyExistException, NotFoundException {
-        User userToBeUpdated = repository.findById(userId).stream().findAny()
+        User userToBeUpdated = repository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
-
         if (userDto.getEmail() != null) {
             checkIfEmailAlreadyExist(userDto.getEmail());
             userToBeUpdated.setEmail(userDto.getEmail());

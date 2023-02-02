@@ -6,12 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.AlreadyExistException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CommentShort;
-import ru.practicum.shareit.item.dto.ItemDetails;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +53,7 @@ public class ItemController {
     @GetMapping
     public List<ItemDetails> getAllItemOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("GET / items: posted by user" + userId);
-        return itemService.getAllItemsByUserId(userId);
+        return itemService.findListOfItemsByUserId(userId, LocalDateTime.now());
     }
 
     @PatchMapping("/{itemId}")

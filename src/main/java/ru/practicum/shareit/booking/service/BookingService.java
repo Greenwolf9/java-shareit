@@ -10,7 +10,7 @@ import ru.practicum.shareit.exception.ValidationException;
 import java.util.List;
 
 public interface BookingService {
-    BookingInfoDto getBookingById(long bookingId, long userId) throws NotFoundException, ConversionException;
+    BookingInfoDto getBookingById(long bookingId, long userId) throws NotFoundException;
 
     List<Booking> getAllBookingsByUserId(long userId);
 

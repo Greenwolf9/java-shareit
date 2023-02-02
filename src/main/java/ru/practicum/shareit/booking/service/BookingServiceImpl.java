@@ -37,21 +37,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingInfoDto getBookingById(long bookingId, long userId) throws NotFoundException, ConversionException {
-        if (getAllBookingsByUserId(userId).stream().noneMatch(x -> x.getId() == bookingId) &&
-                findAllByOwnerIdAndItem(userId, "ALL").stream().noneMatch(x -> x.getId() == bookingId)) {
-            throw new NotFoundException("Booker or owner of item is wrong");
-        }
-        final Booking booking = bookingRepository.findById(bookingId)
-                .stream()
-                .findAny()
+    public BookingInfoDto getBookingById(long bookingId, long userId) throws NotFoundException {
+        final Booking booking = bookingRepository.findBookingByBookerIdOrOwnerId(bookingId, userId)
                 .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " doesn't exist."));
         return BookingMapper.toBookingDto(booking);
     }
 
     @Override
     public List<BookingInfoDto> getAllBookingsByState(String state, Long userId) throws ConversionException, NotFoundException {
-        if (userRepository.findById(userId).isEmpty()) {
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Booker is wrong");
         }
         List<Booking> result = new ArrayList<>();
@@ -137,12 +131,8 @@ public class BookingServiceImpl implements BookingService {
         final Booking booking = BookingMapper.toBooking(bookingDto);
         validateTimeOfBooking(booking);
         final User user = userRepository.findById(userId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
         final Item item = itemRepository.findById(bookingDto.getItemId())
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("Item with id " + bookingDto.getItemId() + " doesn't exist"));
         if (item.getAvailable()) {
             booking.setStatus(Status.WAITING);
@@ -160,8 +150,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingInfoDto updateBooking(long userId, long bookingId, boolean isApproved) throws NotFoundException, ValidationException {
         final Booking booking = bookingRepository.findById(bookingId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("Booking with id " + bookingId + " doesn't exist"));
         if (booking.getItem().getOwner().getId() != userId) {
             throw new NotFoundException("Unauthorised attempt to change status");

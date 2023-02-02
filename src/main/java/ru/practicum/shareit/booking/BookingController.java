@@ -30,7 +30,6 @@ public class BookingController {
     public BookingInfoDto saveBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                       @RequestBody BookingDto bookingDto) throws ValidationException, NotFoundException {
         log.info("POST /bookings: id " + bookingDto.getId());
-        bookingDto.setBookerId(userId);
         return bookingService.saveBooking(userId, bookingDto);
     }
 

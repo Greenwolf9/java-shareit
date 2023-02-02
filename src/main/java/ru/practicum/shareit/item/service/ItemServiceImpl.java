@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -44,8 +45,6 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getItemById(Long itemId) throws NotFoundException {
         final Item item = itemRepository
                 .findById(itemId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
         return ItemMapper.toItemDto(item);
     }
@@ -57,23 +56,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDetails> getAllItemsByUserId(Long userId) {
-        List<Item> itemList = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
-        return itemList.stream().map(item -> new ItemDetails(item.getId(),
-                        item.getName(),
-                        item.getDescription(),
-                        item.getAvailable(),
-                        findLastBooking(bookingRepository.findAllByItemId(item.getId()), userId, item.getOwner().getId()),
-                        findNextBooking(bookingRepository.findAllByItemId(item.getId()), userId, item.getOwner().getId()),
-                        CommentMapper.toCommentShortList(commentRepository.findAllByItemId(item.getId()))))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public ItemDto saveItem(Long userId, ItemDto itemDto) throws ValidationException, NotFoundException {
         final User user = userRepository.findById(userId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
         final Item item = ItemMapper.toItem(itemDto);
         validateItem(item);
@@ -84,8 +68,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(Long itemId, ItemDto itemDto, Long userId) throws NotFoundException {
         final Item itemToBeUpdated = itemRepository.findById(itemId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
         if (!itemToBeUpdated.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Wrong userId. Please check");
@@ -113,8 +95,6 @@ public class ItemServiceImpl implements ItemService {
         List<Booking> bookingList = bookingRepository.findAllByItemId(itemId);
         final Item item = itemRepository
                 .findById(itemId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
         return new ItemDetails(item.getId(),
                 item.getName(),
@@ -123,6 +103,20 @@ public class ItemServiceImpl implements ItemService {
                 findLastBooking(bookingList, userId, item.getOwner().getId()),
                 findNextBooking(bookingList, userId, item.getOwner().getId()),
                 CommentMapper.toCommentShortList(commentRepository.findAllByItemId(item.getId())));
+    }
+
+    @Override
+    public List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime) {
+        return itemRepository.findByItemIdAndUserId(userId, dateTime)
+                .stream()
+                .map(dto -> new ItemDetails(dto.getId(),
+                        dto.getName(),
+                        dto.getDescription(),
+                        dto.getAvailable(),
+                        BookingMapper.mapToLastBooking(dto.getLastBookingId(), dto.getLastBookingBookerId()),
+                        BookingMapper.mapToNextBooking(dto.getNextBookingId(), dto.getNextBookingBookerId()),
+                        CommentMapper.toCommentShortList(commentRepository.findAllByItemId(dto.getId()))))
+                .collect(Collectors.toList());
     }
 
     private BookingDetails findLastBooking(List<Booking> bookingList, long userId, long ownerId) {
@@ -150,13 +144,9 @@ public class ItemServiceImpl implements ItemService {
             throw new ValidationException("Text is empty");
         }
         final User user = userRepository.findById(userId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("User with id " + userId + " doesn't exist"));
 
         final Item item = itemRepository.findById(itemId)
-                .stream()
-                .findAny()
                 .orElseThrow(() -> new NotFoundException("Such Item with id " + itemId + " doesn't exist."));
         if (bookingRepository.findAllByItemId(itemId)
                 .stream()

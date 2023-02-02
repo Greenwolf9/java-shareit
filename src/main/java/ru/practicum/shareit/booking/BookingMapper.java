@@ -5,11 +5,13 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.dto.ItemShort;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.dto.BookingDetails;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BookingMapper {
@@ -35,6 +37,20 @@ public class BookingMapper {
                 item,
                 booker,
                 bookingDto.getStatus());
+    }
+
+    public static BookingDetails mapToLastBooking(Long lastBookingId, Long lastBookingBookerId) {
+        if (lastBookingId == null || lastBookingBookerId == null) {
+            return null;
+        }
+        return Optional.of(new BookingDetails(lastBookingId, lastBookingBookerId)).orElse(null);
+    }
+
+    public static BookingDetails mapToNextBooking(Long nextBookingId, Long nextBookingBookerId) {
+        if (nextBookingId == null || nextBookingBookerId == null) {
+            return null;
+        }
+        return Optional.of(new BookingDetails(nextBookingId, nextBookingBookerId)).orElse(null);
     }
 
     public static List<BookingInfoDto> toBookingDtoList(Collection<Booking> bookings) {
