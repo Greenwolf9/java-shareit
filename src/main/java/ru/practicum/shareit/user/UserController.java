@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable int userId) {
+    public UserDto getUser(@PathVariable Long userId) throws NotFoundException {
         log.info("GET /users/{userId}: " + userId);
         return service.getUserById(userId);
     }
@@ -45,15 +45,14 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto updateUser(@PathVariable int userId, @RequestBody UserDto userDto) throws AlreadyExistException, NotFoundException {
+    public UserDto updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) throws AlreadyExistException, NotFoundException {
         log.info("PATCH /users/{userId}: " + userId);
         return service.updateUser(userId, userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable int userId) {
+    public void deleteUser(@PathVariable Long userId) {
         log.info("DELETE /users/{userId}: " + userId);
         service.deleteUser(userId);
     }
-
 }
