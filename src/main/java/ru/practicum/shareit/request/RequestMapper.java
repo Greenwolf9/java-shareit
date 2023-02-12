@@ -1,28 +1,37 @@
 package ru.practicum.shareit.request;
 
+import ru.practicum.shareit.request.dto.ItemDetailsForRequest;
+import ru.practicum.shareit.request.dto.ItemRequestDetails;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RequestMapper {
-    public static ItemRequestDto toItemRequestDto(ItemRequest itemRequest) {
-        return new ItemRequestDto(itemRequest.getRequestId(),
-                itemRequest.getRequestDescr(),
-                itemRequest.getRequestId(),
-                itemRequest.getCreatedAt());
+    public static ItemRequestDetails toItemRequestDto(ItemRequest itemRequest) {
+        List<ItemDetailsForRequest> list = new ArrayList<>();
+        return new ItemRequestDetails(itemRequest.getId(),
+                itemRequest.getDescription(),
+                itemRequest.getCreated(), list);
     }
 
     public static ItemRequest toItemRequest(ItemRequestDto itemRequestDto) {
-        return new ItemRequest(itemRequestDto.getRequestId(),
-                itemRequestDto.getRequestDescr(),
-                itemRequestDto.getRequestId(),
-                itemRequestDto.getCreatedAt());
+        return ItemRequest.builder()
+                .description(itemRequestDto.getDescription())
+                .requestor(itemRequestDto.getRequestor())
+                .created(LocalDateTime.now()).build();
     }
 
-    public static List<ItemRequestDto> toItemRequestList(Collection<ItemRequest> requests) {
+    public static ItemRequestDto toDto(ItemRequest itemRequest) {
+        return new ItemRequestDto(itemRequest.getId(), itemRequest.getDescription(),
+                itemRequest.getRequestor(), itemRequest.getCreated());
+    }
+
+    public static List<ItemRequestDetails> toItemRequestList(Collection<ItemRequest> requests) {
         return requests.stream()
                 .map(RequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());

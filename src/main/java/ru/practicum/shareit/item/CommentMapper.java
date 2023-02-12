@@ -5,11 +5,14 @@ import ru.practicum.shareit.item.dto.CommentShort;
 import ru.practicum.shareit.item.model.Comment;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CommentMapper {
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
     public static CommentShort toCommentShort(Comment comment) {
         return new CommentShort(comment.getId(),
                 comment.getText(),
@@ -17,10 +20,14 @@ public class CommentMapper {
                 comment.getCreated());
     }
 
+    public static CommentDto commentDto(Comment comment) {
+        return new CommentDto(comment.getId(), comment.getText(), comment.getCreated());
+    }
+
     public static Comment toComment(CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setText(commentDto.getText());
-        comment.setCreated(LocalDateTime.now());
+        comment.setCreated(LocalDateTime.parse(LocalDateTime.now().format(formatter)));
         return comment;
     }
 

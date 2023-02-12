@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 
 @Value
 public class BookingInfoDto {
-    long id;
+    Long id;
     LocalDateTime start;
     LocalDateTime end;
-    ItemShort item;
+    ItemForBookingInfoDto item;
     BookerShort booker;
     Status status;
 }

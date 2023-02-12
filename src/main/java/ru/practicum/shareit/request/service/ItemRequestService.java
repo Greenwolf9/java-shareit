@@ -1,18 +1,21 @@
 package ru.practicum.shareit.request.service;
 
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.request.dto.ItemRequestDetails;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 
 import java.util.List;
 
 public interface ItemRequestService {
 
-    ItemRequest getItemRequestById(long requestId);
+    ItemRequestDetails saveItemRequest(Long userId, ItemRequestDto itemRequestDto) throws ValidationException, NotFoundException;
 
-    List<ItemRequest> getAllItemRequestsByUserId(long userId);
+    ItemRequestDetails getItemRequestById(Long requestId, Long userId) throws NotFoundException;
 
-    ItemRequest saveItemRequest(ItemRequest itemRequest);
+    List<ItemRequestDetails> getAllItemRequestsByUserId(Long userId) throws NotFoundException;
 
-    ItemRequest updateItemRequest(long requestId);
+    List<ItemRequestDetails> getAllRequestsSorted(Long userId, int from, int size) throws ValidationException, NotFoundException;
 
-    ItemRequest deleteItemRequest(long requestId);
+    void deleteItemRequest(Long requestId);
 }

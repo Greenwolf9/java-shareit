@@ -12,7 +12,7 @@ public interface ItemService {
 
     ItemDto getItemById(Long itemId) throws NotFoundException;
 
-    List<ItemDto> getAllItems();
+    List<ItemDto> getSearchedItems(String text, Integer from, Integer size);
 
     ItemDto saveItem(Long userId, ItemDto itemDto) throws ValidationException, AlreadyExistException, NotFoundException;
 
@@ -24,5 +24,5 @@ public interface ItemService {
 
     CommentShort addComments(Long userId, Long itemId, CommentDto commentDto) throws ValidationException, NotFoundException;
 
-    List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime);
+    List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime, Integer from, Integer size);
 }

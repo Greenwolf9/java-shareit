@@ -1,29 +1,37 @@
 package ru.practicum.shareit.request.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.time.Instant;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-item-requests.
  */
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "item_request")
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "request_id")
-    private long requestId;
+    @Column(name = "id")
+    private Long id;
+    @NotNull
     @Column(name = "description")
-    private String requestDescr;
-    @Column(name = "user_id")
-    private long userId;
-    @Column(name = "created_at")
-    private Instant createdAt;
+    private String description;
+    @OneToOne
+    @JoinColumn(name = "requestor_id")
+    private User requestor;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @Column(name = "created")
+    private LocalDateTime created;
 }

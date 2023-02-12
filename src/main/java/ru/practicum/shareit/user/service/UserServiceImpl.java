@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateUser(User user) throws ValidationException {
+    protected void validateUser(User user) throws ValidationException {
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             throw new ValidationException("Email is invalid.");
         }

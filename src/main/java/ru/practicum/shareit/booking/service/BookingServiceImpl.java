@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.State;
@@ -44,32 +45,52 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingInfoDto> getAllBookingsByState(String state, Long userId) throws ConversionException, NotFoundException {
+    public List<BookingInfoDto> getAllBookingsByState(String state, Long userId, Integer from, Integer size)
+            throws ConversionException, NotFoundException, ValidationException {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Input invalid. Check parameters.");
+        }
+        int p = from / size;
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Booker is wrong");
         }
         List<Booking> result = new ArrayList<>();
         switch (convertToEnum(state)) {
             case ALL:
-                result = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                result = bookingRepository.findAllByBookerIdOrderByStartDesc
+                        (userId, PageRequest.of(p, size)).getContent();
                 break;
             case PAST:
-                result = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                result = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc
+                        (userId, LocalDateTime.now(), PageRequest.of(p, size)).getContent();
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                result = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc
+                                (userId, LocalDateTime.now(), PageRequest.of(p, size))
+                        .getContent();
                 break;
             case CURRENT:
                 result = bookingRepository
-                        .findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
-                                LocalDateTime.now(),
-                                LocalDateTime.now());
+                        .findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc
+                                (userId,
+                                        LocalDateTime.now(),
+                                        LocalDateTime.now(),
+                                        PageRequest.of(p, size))
+                        .getContent();
                 break;
             case WAITING:
-                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.WAITING);
+                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc
+                                (userId,
+                                        Status.WAITING,
+                                        PageRequest.of(p, size))
+                        .getContent();
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, Status.REJECTED);
+                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc
+                                (userId,
+                                        Status.REJECTED,
+                                        PageRequest.of(p, size))
+                        .getContent();
                 break;
             case UNSUPPORTED_STATUS:
                 throw new ConversionException("Unknown state: UNSUPPORTED_STATUS");
@@ -78,38 +99,43 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingInfoDto> findAllByOwnerIdAndItem(Long ownerId, String state) throws ConversionException, NotFoundException {
-        if (bookingRepository.findAllByOwnerIdAndItem(ownerId).isEmpty()) {
+    public List<BookingInfoDto> findAllByOwnerIdAndItem(Long ownerId, String state, Integer from, Integer size)
+            throws ConversionException, NotFoundException, ValidationException {
+        if (from < 0 || size <= 0) {
+            throw new ValidationException("Input invalid. Check parameters.");
+        }
+        int p = from / size;
+        if (bookingRepository.findAllByOwnerId(ownerId).isEmpty()) {
             throw new NotFoundException("Owner not found");
         }
         List<Booking> result = new ArrayList<>();
         switch (convertToEnum(state)) {
             case ALL:
-                result = bookingRepository.findAllByOwnerIdAndItem(ownerId);
+                result = bookingRepository.findAllByOwnerIdAndItem(ownerId, PageRequest.of(p, size)).getContent();
                 break;
             case PAST:
-                result = bookingRepository.findAllByOwnerIdAndItem(ownerId)
+                result = bookingRepository.findAllByOwnerIdAndItem(ownerId, PageRequest.of(p, size))
                         .stream()
                         .filter(x -> x.getEnd().isBefore(LocalDateTime.now()))
                         .collect(Collectors.toList());
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByOwnerIdAndItem(ownerId)
+                result = bookingRepository.findAllByOwnerIdAndItem(ownerId, PageRequest.of(p, size))
                         .stream()
                         .filter(x -> x.getStart().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
                 break;
             case CURRENT:
-                result = bookingRepository.findAllByOwnerIdAndItem(ownerId)
+                result = bookingRepository.findAllByOwnerIdAndItem(ownerId, PageRequest.of(p, size))
                         .stream()
                         .filter(x -> x.getStart().isBefore(LocalDateTime.now()) && x.getEnd().isAfter(LocalDateTime.now()))
                         .collect(Collectors.toList());
                 break;
             case WAITING:
-                result = bookingRepository.findAllByOwnerIdAndItemWithStatus(ownerId, Status.WAITING);
+                result = bookingRepository.findAllByOwnerIdAndItemWithStatus(ownerId, Status.WAITING, PageRequest.of(p, size)).getContent();
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByOwnerIdAndItemWithStatus(ownerId, Status.REJECTED);
+                result = bookingRepository.findAllByOwnerIdAndItemWithStatus(ownerId, Status.REJECTED, PageRequest.of(p, size)).getContent();
                 break;
             case UNSUPPORTED_STATUS:
                 throw new ConversionException("Unknown state: UNSUPPORTED_STATUS");
@@ -119,11 +145,6 @@ public class BookingServiceImpl implements BookingService {
 
     private State convertToEnum(String state) {
         return State.valueOf(state);
-    }
-
-    @Override
-    public List<Booking> getAllBookingsByUserId(long userId) {
-        return bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
     }
 
     @Override
@@ -166,10 +187,6 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
-    @Override
-    public void deleteBooking(long bookingId) {
-        bookingRepository.deleteById(bookingId);
-    }
 
     private void validateTimeOfBooking(Booking booking) throws ValidationException {
         LocalDateTime startTime = LocalDateTime.now();
