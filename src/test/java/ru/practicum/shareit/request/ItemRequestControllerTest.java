@@ -37,18 +37,15 @@ class ItemRequestControllerTest {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private final ItemRequestDetails requestDetails = new ItemRequestDetails
-            (
+    private final ItemRequestDetails requestDetails = new ItemRequestDetails(1L,
+            "Test description",
+            LocalDateTime.parse(LocalDateTime.now().format(formatter)),
+            List.of(new ItemDetailsForRequest(
                     1L,
-                    "Test description",
-                    LocalDateTime.parse(LocalDateTime.now().format(formatter)),
-                    List.of(new ItemDetailsForRequest(
-                            1L,
-                            "Test Name",
-                            "Item Test Description",
-                            true,
-                            2L))
-            );
+                    "Test Name",
+                    "Item Test Description",
+                    true,
+                    2L)));
 
     @Test
     void addNewRequest() throws Exception {

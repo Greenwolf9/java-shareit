@@ -55,13 +55,11 @@ class BookingServiceImplTest {
     void setUp() {
         expectedUser = new User(1L, "test@test.ru", "Test User");
         booker = new User(2L, "test2@test.com", "Test man");
-        expectedItem = new Item
-                (
-                        1L,
-                        "Test ItemName",
-                        "Test ItemDescription",
-                        true, expectedUser,
-                        new ItemRequest());
+        expectedItem = new Item(1L,
+                "Test ItemName",
+                "Test ItemDescription",
+                true, expectedUser,
+                new ItemRequest());
 
         expectedBooking = new Booking();
         expectedBooking.setId(1L);

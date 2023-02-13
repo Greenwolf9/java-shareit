@@ -57,40 +57,33 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> result = new ArrayList<>();
         switch (convertToEnum(state)) {
             case ALL:
-                result = bookingRepository.findAllByBookerIdOrderByStartDesc
-                        (userId, PageRequest.of(p, size)).getContent();
+                result = bookingRepository.findAllByBookerIdOrderByStartDesc(userId,
+                        PageRequest.of(p, size)).getContent();
                 break;
             case PAST:
-                result = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc
-                        (userId, LocalDateTime.now(), PageRequest.of(p, size)).getContent();
+                result = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId,
+                        LocalDateTime.now(), PageRequest.of(p, size)).getContent();
                 break;
             case FUTURE:
-                result = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc
-                                (userId, LocalDateTime.now(), PageRequest.of(p, size))
-                        .getContent();
+                result = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,
+                                LocalDateTime.now(), PageRequest.of(p, size)).getContent();
                 break;
             case CURRENT:
                 result = bookingRepository
-                        .findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc
-                                (userId,
+                        .findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId,
                                         LocalDateTime.now(),
                                         LocalDateTime.now(),
-                                        PageRequest.of(p, size))
-                        .getContent();
+                                        PageRequest.of(p, size)).getContent();
                 break;
             case WAITING:
-                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc
-                                (userId,
+                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
                                         Status.WAITING,
-                                        PageRequest.of(p, size))
-                        .getContent();
+                                        PageRequest.of(p, size)).getContent();
                 break;
             case REJECTED:
-                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc
-                                (userId,
+                result = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId,
                                         Status.REJECTED,
-                                        PageRequest.of(p, size))
-                        .getContent();
+                                        PageRequest.of(p, size)).getContent();
                 break;
             case UNSUPPORTED_STATUS:
                 throw new ConversionException("Unknown state: UNSUPPORTED_STATUS");

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @Transactional
 @Rollback(value = false)
 @SpringBootTest(
@@ -60,10 +61,10 @@ class ItemServiceImplIT {
         itemRepository.save(testItem);
 
 
-        Pageable pageable = PageRequest.of(0,20);
+        Pageable pageable = PageRequest.of(0, 20);
         Page<ItemView> testPageOfItems = itemRepository
                 .findByItemIdAndUserId(testUser.getId(), LocalDateTime.now(), pageable);
-        List<ItemDetails> testList = testPageOfItems.stream().map(dto->new ItemDetails(dto.getId(),
+        List<ItemDetails> testList = testPageOfItems.stream().map(dto -> new ItemDetails(dto.getId(),
                 dto.getName(),
                 dto.getDescription(),
                 dto.getAvailable(),
