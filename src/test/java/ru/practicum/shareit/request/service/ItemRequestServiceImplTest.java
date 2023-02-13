@@ -103,7 +103,7 @@ class ItemRequestServiceImplTest {
     }
 
     @Test
-    void getAllItemRequestsByUserId() throws Exception {
+    void getAllItemRequestsByUserId_whenAuthorized_thenReturned() throws Exception {
         Long userId = expectedUser.getId();
         ItemDetailsForRequest item = new ItemDetailsForRequest(1L, "TestItem", "Test Description", true, 1L);
 
@@ -135,6 +135,16 @@ class ItemRequestServiceImplTest {
         assertFalse(actualList.isEmpty());
         assertEquals(1, actualList.size());
 
+    }
+
+    @Test
+    void getAllItemRequestsByUserId_whenNotAuthorized_thenThrownException() {
+        Long userId = expectedUser.getId();
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
+                () -> itemRequestService.getAllItemRequestsByUserId(userId));
+        assertEquals(notFoundException.getMessage(), "Requestor is wrong");
     }
 
 

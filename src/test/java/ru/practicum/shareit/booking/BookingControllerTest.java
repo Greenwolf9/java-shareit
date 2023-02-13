@@ -13,6 +13,8 @@ import ru.practicum.shareit.booking.dto.BookerShort;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.dto.ItemForBookingInfoDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.ConversionException;
+import ru.practicum.shareit.exception.ValidationException;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -120,6 +122,20 @@ class BookingControllerTest {
     }
 
     @Test
+    void getBookingsByStateAndUserId_whenUnsupportedState_thenThrownException() throws Exception {
+        when(bookingService.getAllBookingsByState(anyString(), anyLong(), anyInt(), anyInt()))
+                .thenThrow(ConversionException.class);
+        mvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", bookingInfoDto.getBooker().getId())
+                        .param("state", "UNSUPPORTED_STATUS")
+                        .param("from", "0")
+                        .param("size", "20")
+                )
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
     void getBookingsByStateAndItemsOfOwner() throws Exception {
         when(bookingService.findAllByOwnerIdAndItem(anyLong(), anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingInfoDto));
@@ -131,5 +147,18 @@ class BookingControllerTest {
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    void getBookingsByStateAndItemsOfOwner_whenInvalidParams_thenThrownException() throws Exception {
+        when(bookingService.findAllByOwnerIdAndItem(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenThrow(ValidationException.class);
+        mvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", bookingInfoDto.getBooker().getId())
+                        .param("state", "ALL")
+                        .param("from", "0")
+                        .param("size", "-1")
+                )
+                .andExpect(status().isBadRequest());
     }
 }

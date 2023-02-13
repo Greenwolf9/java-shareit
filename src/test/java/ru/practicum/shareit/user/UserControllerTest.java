@@ -7,7 +7,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.AlreadyExistException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
@@ -72,6 +75,31 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id").value(userDto.getId()))
                 .andExpect(jsonPath("$.email").value(userDto.getEmail()))
                 .andExpect(jsonPath("$.name").value(userDto.getName()));
+    }
+
+    @Test
+    void updateUser_whenUserNotValid_thrownBadRequest() throws Exception {
+        Long userId = 1L;
+        User testUser = new User();
+        testUser.setName("test man");
+        when(userService.updateUser(userId, UserMapper.toUserDto(testUser))).thenThrow(NotFoundException.class);
+        mvc.perform(patch("/users/{userId}", userId)
+                        .content(mapper.writeValueAsString(testUser))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateUser_whenEmailNotUnique_thrownConflict() throws Exception {
+        Long userId = 1L;
+        User testUser = new User();
+        testUser.setId(userId);
+        testUser.setEmail("test@test.ru");
+        when(userService.updateUser(userId, UserMapper.toUserDto(testUser))).thenThrow(AlreadyExistException.class);
+        mvc.perform(patch("/users/{userId}", userId)
+                        .content(mapper.writeValueAsString(testUser))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict());
     }
 
     @Test

@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,6 +27,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,8 +52,6 @@ class ItemServiceImplTest {
     private Item expectedItem;
     private Booking expectedBooking;
     private Comment comment;
-    @Mock
-    ArgumentCaptor<Item> captor;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -101,14 +99,27 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getSearchedItems() {
+    void getSearchedItems_whenSearchParametersNotEmpty_thenReturned() {
         String text = "text";
         Pageable pageable = PageRequest.of(0, 20);
         Page<Item> page = new PageImpl<>(List.of(expectedItem));
         when(itemRepository.findItemByKeyWords(anyString(), any(Pageable.class))).thenReturn(page);
+
         List<ItemDto> items = itemService.getSearchedItems(text, pageable.getPageNumber(), pageable.getPageSize());
+
         verify(itemRepository).findItemByKeyWords(text, pageable);
         assertEquals(ItemMapper.toItemDtoList(page.getContent()), items);
+    }
+
+    @Test
+    void getSearchedItems_whenSearchParametersEmpty_thenReturnedEmptyList() {
+        String text = "";
+        Pageable pageable = PageRequest.of(0, 20);
+
+        List<ItemDto> items = itemService.getSearchedItems(text, pageable.getPageNumber(), pageable.getPageSize());
+
+        verify(itemRepository, never()).findItemByKeyWords(text, pageable);
+        assertEquals(Collections.emptyList(), items);
     }
 
     @Test
@@ -138,7 +149,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void updateItem() throws NotFoundException {
+    void updateItem_whenOwnerAuthorized_thenReturnedItem() throws NotFoundException {
         Long userId = 1L;
         Long itemId = 1L;
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(expectedItem));
@@ -151,6 +162,22 @@ class ItemServiceImplTest {
 
         assertEquals(ItemMapper.toItemDto(toBeUpdated), actualItem);
         verify(itemRepository).save(toBeUpdated);
+    }
+
+    @Test
+    void updateItem_whenOwnerNotAuthorized_thenThrownException() {
+        Long userId = 2L;
+        Long itemId = 1L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(expectedItem));
+        Item toBeUpdated = expectedItem;
+        toBeUpdated.setAvailable(false);
+        toBeUpdated.setDescription("Test UpdatedDescription");
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
+                () -> itemService.updateItem(itemId, ItemMapper.toItemDto(toBeUpdated), userId));
+
+        assertEquals(notFoundException.getMessage(), "Wrong userId. Please check");
+        verify(itemRepository, never()).save(toBeUpdated);
     }
 
     @Test
@@ -189,5 +216,44 @@ class ItemServiceImplTest {
         ValidationException validationException = assertThrows(ValidationException.class,
                 () -> itemService.addComments(expectedUser.getId(), expectedItem.getId(), expectedComment));
         assertEquals(validationException.getMessage(), "This user " + userId + " can't add comments.");
+    }
+
+    @Test
+    void addComments_whenNotValidComments_thenThrownException() {
+        Long userId = 1L;
+        Long itemId = 1L;
+
+        CommentDto expectedComment = new CommentDto(1L, "", null);
+
+        ValidationException validationException = assertThrows(ValidationException.class,
+                () -> itemService.addComments(userId, itemId, expectedComment));
+        assertEquals(validationException.getMessage(), "Text is empty");
+    }
+
+    @Test
+    void getItemDetailsWithNextAndLastBooking_WhenItemFound_thenReturned() throws Exception {
+        long userId = 1L;
+        long itemId = 1L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(expectedItem));
+        ItemDetails testItem = new ItemDetails(expectedItem.getId(),
+                expectedItem.getName(),
+                expectedItem.getDescription(), expectedItem.getAvailable(),
+                new BookingDetails(),
+                new BookingDetails(),
+                List.of(CommentMapper.toCommentShort(comment)));
+
+        ItemDetails actualItem = itemService.getNextAndLastBookingsOfItem(itemId, userId);
+
+        assertEquals(testItem.getId(), actualItem.getId());
+    }
+
+    @Test
+    void getItemDetailsWithNextAndLastBooking_WhenItemNotFound_thenThrowException() {
+        long ownerId = 2L;
+        long itemId = 1L;
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class,
+                () -> itemService.getNextAndLastBookingsOfItem(itemId, ownerId));
+        assertEquals(notFoundException.getMessage(), "Such Item with id " + itemId + " doesn't exist.");
     }
 }

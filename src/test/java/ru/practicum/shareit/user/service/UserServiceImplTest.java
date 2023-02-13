@@ -70,7 +70,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void saveUser_whenUserValid_thenSaved() throws ValidationException {
+    void saveUser_whenUserValid_thenSaved() throws Exception {
         when(userRepository.save(any(User.class))).thenReturn(expectedUser);
 
         UserDto actualUser = userService.saveUser(UserMapper.toUserDto(expectedUser));
@@ -91,7 +91,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUser() throws NotFoundException, AlreadyExistException {
+    void updateUser_whenEmailIsUnique_thenReturned() throws NotFoundException, AlreadyExistException {
         when(userRepository.findById(1L)).thenReturn(Optional.of(expectedUser));
         User toBeUpdatedUser = expectedUser;
         toBeUpdatedUser.setEmail("update@test.ru");

@@ -82,7 +82,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .collect(Collectors.toList());
     }
 
-    private List<ItemDetailsForRequest> validateList(List<ItemDetailsForRequest> forRequestList) {
+    protected List<ItemDetailsForRequest> validateList(List<ItemDetailsForRequest> forRequestList) {
         for (ItemDetailsForRequest i : forRequestList) {
             if (i.getId() == null) {
                 return Collections.emptyList();

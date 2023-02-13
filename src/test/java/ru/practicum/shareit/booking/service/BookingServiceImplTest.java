@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingInfoDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.ConversionException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
@@ -28,11 +29,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -89,26 +88,114 @@ class BookingServiceImplTest {
 
     @Test
     void getAllBookingsByState() throws Exception {
-        String text = "ALL";
+        String all = "ALL";
         Pageable pageable = PageRequest.of(0, 20);
         Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
         when(userRepository.existsById(booker.getId())).thenReturn(true);
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), any(Pageable.class))).thenReturn(page);
-        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(text, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(all, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
         verify(bookingRepository).findAllByBookerIdOrderByStartDesc(booker.getId(), pageable);
         assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
     }
 
     @Test
-    void findAllByOwnerIdAndItem() throws Exception {
+    void findAllByOwnerIdAndItem_whenStateIsAll() throws Exception {
         String text = "ALL";
         Pageable pageable = PageRequest.of(0, 20);
         Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
         when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
         when(bookingRepository.findAllByOwnerIdAndItem(anyLong(), any(Pageable.class))).thenReturn(page);
+
         List<BookingInfoDto> bookings = bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize());
+
         verify(bookingRepository).findAllByOwnerIdAndItem(expectedUser.getId(), pageable);
         assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+
+    }
+
+    @Test
+    void findAllByOwnerIdAndItem_whenStateIsFuture() throws Exception {
+        String text = "FUTURE";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerIdAndItem(anyLong(), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize());
+
+        verify(bookingRepository).findAllByOwnerIdAndItem(expectedUser.getId(), pageable);
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void findAllByOwnerIdAndItem_whenStateIsPast() throws Exception {
+        String text = "PAST";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerIdAndItem(anyLong(), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize());
+
+        verify(bookingRepository).findAllByOwnerIdAndItem(expectedUser.getId(), pageable);
+        assertNotEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+        assertTrue(bookings.isEmpty());
+    }
+
+    @Test
+    void findAllByOwnerIdAndItem_whenStateIsCurrent() throws Exception {
+        String text = "CURRENT";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerIdAndItem(anyLong(), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize());
+
+        verify(bookingRepository).findAllByOwnerIdAndItem(expectedUser.getId(), pageable);
+        assertNotEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+        assertTrue(bookings.isEmpty());
+    }
+
+    @Test
+    void findAllByOwnerIdAndItem_whenStatusIsWaiting() throws Exception {
+        String text = "WAITING";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerIdAndItemWithStatus(anyLong(), any(Status.class), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize());
+
+        verify(bookingRepository).findAllByOwnerIdAndItemWithStatus(expectedUser.getId(), Status.WAITING, pageable);
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void findAllByOwnerIdAndItem_whenStatusIsRejected() throws Exception {
+        String text = "REJECTED";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
+        when(bookingRepository.findAllByOwnerIdAndItemWithStatus(anyLong(), any(Status.class), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize());
+
+        verify(bookingRepository).findAllByOwnerIdAndItemWithStatus(expectedUser.getId(), Status.REJECTED, pageable);
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void findAllByOwnerIdAndItem_whenStatusIsUnsupported_thenThrownException() {
+        String text = "UNSUPPORTED_STATUS";
+        Pageable pageable = PageRequest.of(0, 20);
+        when(bookingRepository.findAllByOwnerId(expectedUser.getId())).thenReturn(List.of(expectedBooking));
+        ConversionException conversionException = assertThrows(ConversionException.class,
+                () -> bookingService.findAllByOwnerIdAndItem(expectedUser.getId(), text, pageable.getPageNumber(), pageable.getPageSize()));
+
+        assertEquals(conversionException.getMessage(), "Unknown state: UNSUPPORTED_STATUS");
     }
 
     @Test

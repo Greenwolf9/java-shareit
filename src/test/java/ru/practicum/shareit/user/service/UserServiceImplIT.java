@@ -12,7 +12,10 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import static org.hamcrest.core.IsEqual.equalTo;
 
 @Transactional
 @SpringBootTest(
@@ -32,6 +35,7 @@ class UserServiceImplIT {
         testUser.setName("test man");
         userRepository.save(testUser);
         List<UserDto> listOfTestUser = userService.getAllUsers();
-        assertEquals(UserMapper.toUserDtoList(List.of(testUser)), listOfTestUser);
+        assertThat(listOfTestUser, equalTo(UserMapper.toUserDtoList(List.of(testUser))));
+        assertThat(listOfTestUser, hasItems(UserMapper.toUserDto(testUser)));
     }
 }
