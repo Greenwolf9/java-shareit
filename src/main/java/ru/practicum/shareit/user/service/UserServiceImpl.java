@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         repository.deleteById(userId);
     }
 
-    private void checkIfEmailAlreadyExist(String email) throws AlreadyExistException {
+    protected void checkIfEmailAlreadyExist(String email) throws AlreadyExistException {
         if (repository.findAll()
                 .stream()
                 .map(User::getEmail)

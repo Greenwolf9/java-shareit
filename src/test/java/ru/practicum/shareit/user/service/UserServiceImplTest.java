@@ -105,6 +105,16 @@ class UserServiceImplTest {
     }
 
     @Test
+    void updateUser_whenEmailIsNotUnique_thenThrownException() {
+
+        when(userRepository.findAll()).thenReturn(List.of(expectedUser));
+        AlreadyExistException exception = assertThrows(AlreadyExistException.class, () ->
+                userService.checkIfEmailAlreadyExist(expectedUser.getEmail()));
+        assertEquals(exception.getMessage(), "User with email test@test.ru already exists");
+
+    }
+
+    @Test
     void deleteUser() {
         doNothing().when(userRepository).deleteById(1L);
 
