@@ -87,7 +87,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getAllBookingsByState() throws Exception {
+    void getAllBookingsByStateAll() throws Exception {
         String all = "ALL";
         Pageable pageable = PageRequest.of(0, 20);
         Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
@@ -98,6 +98,81 @@ class BookingServiceImplTest {
 
         verify(bookingRepository).findAllByBookerIdOrderByStartDesc(booker.getId(), pageable);
         assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void getAllBookingsByStateFuture() throws Exception {
+        String all = "FUTURE";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(userRepository.existsById(booker.getId())).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(anyLong(), any(), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(all, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void getAllBookingsByStatePast() throws Exception {
+        String all = "PAST";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(userRepository.existsById(booker.getId())).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(anyLong(), any(), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(all, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void getAllBookingsByStateCurrent() throws Exception {
+        String all = "CURRENT";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(userRepository.existsById(booker.getId())).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(anyLong(), any(), any(), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(all, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void getAllBookingsByStatusWaiting() throws Exception {
+        String all = "WAITING";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(userRepository.existsById(booker.getId())).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(anyLong(), any(Status.class), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(all, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void getAllBookingsByStatusRejected() throws Exception {
+        String all = "REJECTED";
+        Pageable pageable = PageRequest.of(0, 20);
+        Page<Booking> page = new PageImpl<>(List.of(expectedBooking));
+        when(userRepository.existsById(booker.getId())).thenReturn(true);
+        when(bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(anyLong(), any(Status.class), any(Pageable.class))).thenReturn(page);
+
+        List<BookingInfoDto> bookings = bookingService.getAllBookingsByState(all, booker.getId(), pageable.getPageNumber(), pageable.getPageSize());
+
+        assertEquals(BookingMapper.toBookingDtoList(page.getContent()), bookings);
+    }
+
+    @Test
+    void getAllBookingsByState_whenNotSupported_thenThrownException() {
+        String text = "UNSUPPORTED_STATUS";
+        Pageable pageable = PageRequest.of(0, 20);
+        when(userRepository.existsById(booker.getId())).thenReturn(true);
+        ConversionException conversionException = assertThrows(ConversionException.class,
+                () -> bookingService.getAllBookingsByState(text, booker.getId(), pageable.getPageNumber(), pageable.getPageSize()));
+        assertEquals(conversionException.getMessage(), "Unknown state: UNSUPPORTED_STATUS");
     }
 
     @Test
@@ -197,6 +272,7 @@ class BookingServiceImplTest {
 
         assertEquals(conversionException.getMessage(), "Unknown state: UNSUPPORTED_STATUS");
     }
+
 
     @Test
     void saveBooking_whenBookingValid_thenSaved() throws Exception {

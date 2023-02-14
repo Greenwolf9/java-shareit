@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.repository.ItemRepository;
@@ -136,6 +137,52 @@ class ItemRequestServiceImplTest {
         assertEquals(1, actualList.size());
 
     }
+
+    @Test
+    void getAllRequestsSorted_whenParametersValid_thenReturnedList() throws ValidationException {
+        Long userId = expectedUser.getId();
+        ItemDetailsForRequest item = new ItemDetailsForRequest(1L, "TestItem", "Test Description", true, 1L);
+        Pageable pageable = PageRequest.of(0, 20);
+
+        ItemRequestWithListOfItems testItem = new ItemRequestWithListOfItems() {
+            @Override
+            public Long getId() {
+                return 1L;
+            }
+
+            @Override
+            public String getDescription() {
+                return "Test Description";
+            }
+
+            @Override
+            public LocalDateTime getCreated() {
+                return LocalDateTime.now();
+            }
+
+            @Override
+            public List<ItemDetailsForRequest> getItems() {
+                return List.of(item);
+            }
+        };
+        Page<ItemRequestWithListOfItems> page = new PageImpl<>(List.of(testItem));
+        when(itemRequestRepository.findAllRequestsByRequestorIdIsNot(userId,
+                PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("created").descending())))
+                .thenReturn(page);
+        List<ItemRequestDetails> actualList = itemRequestService.getAllRequestsSorted(userId, 0, 20);
+        assertFalse(actualList.isEmpty());
+        assertEquals(1, actualList.size());
+    }
+
+    @Test
+    void getAllRequestsSorted_whenParametersNotValid_thenThrownException() {
+        Long userId = 1L;
+
+        ValidationException validationException = assertThrows(ValidationException.class,
+                () -> itemRequestService.getAllRequestsSorted(userId, 0, -1));
+        assertEquals(validationException.getMessage(), "Input invalid. Check parameters.");
+    }
+
 
     @Test
     void getAllItemRequestsByUserId_whenNotAuthorized_thenThrownException() {
