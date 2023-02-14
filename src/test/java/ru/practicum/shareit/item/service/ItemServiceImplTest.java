@@ -256,4 +256,63 @@ class ItemServiceImplTest {
                 () -> itemService.getNextAndLastBookingsOfItem(itemId, ownerId));
         assertEquals(notFoundException.getMessage(), "Such Item with id " + itemId + " doesn't exist.");
     }
+
+    @Test
+    void findListOfItemsByUserId() {
+        Long testUserId = 1L;
+        Long testRequestorId = 2L;
+        Pageable pageable = PageRequest.of(0, 20);
+        ItemView itemView = new ItemView() {
+            @Override
+            public Long getId() {
+                return 1L;
+            }
+
+            @Override
+            public String getName() {
+                return "Test Item";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Test Item Description";
+            }
+
+            @Override
+            public Boolean getAvailable() {
+                return true;
+            }
+
+            @Override
+            public Long getLastBookingId() {
+                return 1L;
+            }
+
+            @Override
+            public Long getLastBookingBookerId() {
+                return 1L;
+            }
+
+            @Override
+            public Long getNextBookingId() {
+                return 2L;
+            }
+
+            @Override
+            public Long getNextBookingBookerId() {
+                return 2L;
+            }
+        };
+        Page<ItemView> testPageOfItems = new PageImpl<>(List.of(itemView));
+        when(itemRepository.findByItemIdAndUserId(testUserId, LocalDateTime.parse(LocalDateTime.now().format(formatter)), pageable)).thenReturn(testPageOfItems);
+
+        List<ItemDetails> actualList = itemService
+                .findListOfItemsByUserId(
+                        testUserId,
+                        LocalDateTime.parse(LocalDateTime.now().format(formatter)),
+                        pageable.getPageNumber(),
+                        pageable.getPageSize());
+        assertFalse(actualList.isEmpty());
+        assertEquals(1, actualList.size());
+    }
 }
