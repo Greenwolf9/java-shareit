@@ -31,7 +31,6 @@ public class ItemRequest {
     @OneToOne
     @JoinColumn(name = "requestor_id")
     private User requestor;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "created")
     private LocalDateTime created;
 }

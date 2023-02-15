@@ -21,6 +21,5 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime created;
 }
