@@ -11,7 +11,6 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * TODO Sprint add-controllers.
@@ -51,9 +50,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDetails> getAllItemOfUser(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDetails> getAllItemOfUser(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                              @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                              @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.info("GET / items: posted by user" + userId);
-        return itemService.findListOfItemsByUserId(userId, LocalDateTime.now());
+        return itemService.findListOfItemsByUserId(userId, LocalDateTime.now(), from, size);
     }
 
     @PatchMapping("/{itemId}")
@@ -66,14 +67,10 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> searchOfItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                       @RequestParam String text) {
-        List<ItemDto> itemsDto = itemService.getAllItems();
-
+                                       @RequestParam String text,
+                                       @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                       @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.info("GET / items: search items with text " + text);
-        return itemsDto.stream()
-                .filter(x -> x.getDescription().toLowerCase().contains(text.toLowerCase())
-                        && x.getAvailable()
-                        && !text.isEmpty())
-                .collect(Collectors.toList());
+        return itemService.getSearchedItems(text, from, size);
     }
 }

@@ -43,24 +43,28 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public BookingInfoDto getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                         @PathVariable long bookingId) throws NotFoundException, ConversionException {
+                                         @PathVariable long bookingId) throws NotFoundException {
         log.info("GET /bookings/{bookingId}: id " + bookingId);
         return bookingService.getBookingById(bookingId, userId);
     }
 
     @GetMapping
     public List<BookingInfoDto> getBookingsByStateAndUserId(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                            @RequestParam(value = "state", defaultValue = "ALL") String state)
-            throws ConversionException, NotFoundException {
+                                                            @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                            @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                            @RequestParam(value = "size", defaultValue = "20") Integer size)
+            throws ConversionException, NotFoundException, ValidationException {
         log.info("GET /bookings?state={state} " + state);
-        return bookingService.getAllBookingsByState(state, userId);
+        return bookingService.getAllBookingsByState(state, userId, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingInfoDto> getBookingsByStateAndItemsOfOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                                  @RequestParam(value = "state", defaultValue = "ALL") String state)
-            throws ConversionException, NotFoundException {
+                                                                  @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                                  @RequestParam(value = "from", defaultValue = "0") Integer from,
+                                                                  @RequestParam(value = "size", defaultValue = "20") Integer size)
+            throws ConversionException, NotFoundException, ValidationException {
         log.info("GET /bookings/owner?state={state} " + state);
-        return bookingService.findAllByOwnerIdAndItem(userId, state);
+        return bookingService.findAllByOwnerIdAndItem(userId, state, from, size);
     }
 }

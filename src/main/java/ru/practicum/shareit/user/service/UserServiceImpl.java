@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
         repository.deleteById(userId);
     }
 
-    private void checkIfEmailAlreadyExist(String email) throws AlreadyExistException {
+    protected void checkIfEmailAlreadyExist(String email) throws AlreadyExistException {
         if (repository.findAll()
                 .stream()
                 .map(User::getEmail)
@@ -69,7 +69,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateUser(User user) throws ValidationException {
+    protected void validateUser(User user) throws ValidationException {
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
             throw new ValidationException("Email is invalid.");
         }

@@ -1,20 +1,20 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Value;
-import ru.practicum.shareit.user.model.User;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
-@Value
-public class ItemRequestDto {
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class ItemRequestDetails {
     Long id;
     String description;
-    User requestor;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime created;
+    List<ItemDetailsForRequest> items;
 }

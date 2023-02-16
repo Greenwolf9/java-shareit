@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto addNewUser(@RequestBody UserDto userDto) throws ValidationException, AlreadyExistException {
+    public UserDto addNewUser(@RequestBody UserDto userDto) throws ValidationException {
         log.info("POST /users: " + userDto.getEmail());
         return service.saveUser(userDto);
     }

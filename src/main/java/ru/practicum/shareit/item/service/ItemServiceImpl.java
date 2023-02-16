@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -19,6 +21,7 @@ import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,11 +53,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItems() {
-        final Collection<Item> items = itemRepository.findAll();
+    public List<ItemDto> getSearchedItems(String text, Integer from, Integer size) {
+        int p = from / size;
+        if (text.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Collection<Item> items = itemRepository.findItemByKeyWords(text, PageRequest.of(p, size)).getContent();
         return ItemMapper.toItemDtoList(items);
     }
 
+    @Transactional
     @Override
     public ItemDto saveItem(Long userId, ItemDto itemDto) throws ValidationException, NotFoundException {
         final User user = userRepository.findById(userId)
@@ -106,8 +114,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime) {
-        return itemRepository.findByItemIdAndUserId(userId, dateTime)
+    public List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime, Integer from, Integer size) {
+        int p = from / size;
+        return itemRepository.findByItemIdAndUserId(userId, dateTime, PageRequest.of(p, size))
                 .stream()
                 .map(dto -> new ItemDetails(dto.getId(),
                         dto.getName(),
