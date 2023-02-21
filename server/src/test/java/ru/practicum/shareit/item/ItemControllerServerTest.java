@@ -134,7 +134,7 @@ class ItemControllerServerTest {
 
     @Test
     void getAllItemOfUser() throws Exception {
-        when(itemService.findListOfItemsByUserId(anyLong(), any(), anyInt(), anyInt()))
+        when(itemService.findListOfItemsByUserId(anyLong(), anyInt(), anyInt()))
                 .thenReturn(List.of(itemDetails));
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 2L))

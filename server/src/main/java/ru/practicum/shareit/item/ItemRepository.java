@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.dto.ItemView;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemDetailsForRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
@@ -22,10 +21,10 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "left join booking as last on i.id = last.item_id " +
             "left join booking as next on i.id = next.item_id " +
             "where i.user_id = :userId and (last.id is null or next.id is null) " +
-            "or (i.user_id = :userId and last.id != next.id and last.end_date < next.start_date and next.start_date > :time)  " +
+            "or (i.user_id = :userId and last.id != next.id and last.end_date < next.start_date)  " +
             "order by i.id ",
             nativeQuery = true)
-    Page<ItemView> findByItemIdAndUserId(@Param("userId") Long userId, @Param("time") LocalDateTime time, Pageable pageable);
+    Page<ItemView> findByItemIdAndUserId(@Param("userId") Long userId, Pageable pageable);
 
     List<ItemDetailsForRequest> findAllByRequestId(Long requestId);
 

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
@@ -13,9 +12,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @RestController
 @Slf4j
 @RequestMapping(path = "/requests")
@@ -52,7 +48,7 @@ public class ItemRequestController {
     @GetMapping("/all")
     public ResponseEntity<Object> getAllRequestsSorted(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                        @PositiveOrZero @RequestParam(value = "from", defaultValue = "0") Integer from,
-                                                       @Positive @RequestParam(value = "size", defaultValue = "10") Integer size) throws ValidationException, NotFoundException {
+                                                       @Positive @RequestParam(value = "size", defaultValue = "10") Integer size) {
         log.info("GET /requests/all?from={from}&size={size} ");
         return requestClient.getAllRequestsSorted(userId, from, size);
     }

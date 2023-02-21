@@ -12,9 +12,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
@@ -37,15 +34,15 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> updateBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @PathVariable long bookingId,
+                                                @PathVariable Long bookingId,
                                                 @RequestParam(value = "approved", defaultValue = "null") Boolean isApproved) {
         log.info("POST /bookings/{bookingId}?approved = : id " + bookingId);
         return bookingClient.updateBooking(userId, bookingId, isApproved);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                 @PathVariable long bookingId) {
+    public ResponseEntity<Object> getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                 @PathVariable Long bookingId) {
         log.info("GET /bookings/{bookingId}: id " + bookingId);
         return bookingClient.getBookingById(bookingId, userId);
     }

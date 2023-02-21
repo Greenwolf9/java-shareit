@@ -54,7 +54,7 @@ class ItemRepositoryIT {
     void findByItemIdAndUserId() {
 
         Pageable pageable = PageRequest.of(0, 20);
-        Page<ItemView> itemViewPage = itemRepository.findByItemIdAndUserId(user1.getId(), LocalDateTime.now(), pageable);
+        Page<ItemView> itemViewPage = itemRepository.findByItemIdAndUserId(user1.getId(), pageable);
         assertThat(itemViewPage.getTotalElements()).isEqualTo(1);
     }
 

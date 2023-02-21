@@ -11,9 +11,6 @@ import ru.practicum.shareit.exception.ValidationException;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")

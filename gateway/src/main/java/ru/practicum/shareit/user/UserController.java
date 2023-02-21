@@ -10,9 +10,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")

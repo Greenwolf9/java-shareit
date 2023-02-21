@@ -8,12 +8,8 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/items")
@@ -53,7 +49,7 @@ public class ItemControllerServer {
                                               @RequestParam(value = "from", defaultValue = "0") Integer from,
                                               @RequestParam(value = "size", defaultValue = "20") Integer size) {
         log.info("GET / items: posted by user" + userId);
-        return itemService.findListOfItemsByUserId(userId, LocalDateTime.now(), from, size);
+        return itemService.findListOfItemsByUserId(userId, from, size);
     }
 
     @PatchMapping("/{itemId}")

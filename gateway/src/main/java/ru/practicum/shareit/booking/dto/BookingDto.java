@@ -11,15 +11,15 @@ import java.time.LocalDateTime;
 @Value
 public class BookingDto {
 
-    long id;
+    Long id;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @FutureOrPresent
     LocalDateTime start;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Future
     LocalDateTime end;
-    long itemId;
-    long bookerId;
+    Long itemId;
+    Long bookerId;
     Status status;
 }
 

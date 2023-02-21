@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.dto.CommentShort;
 import ru.practicum.shareit.item.dto.ItemDetails;
 import ru.practicum.shareit.item.dto.ItemDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ItemService {
@@ -27,5 +26,5 @@ public interface ItemService {
 
     CommentShort addComments(Long userId, Long itemId, CommentDto commentDto) throws ValidationException, NotFoundException;
 
-    List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime, Integer from, Integer size);
+    List<ItemDetails> findListOfItemsByUserId(Long userId, Integer from, Integer size);
 }

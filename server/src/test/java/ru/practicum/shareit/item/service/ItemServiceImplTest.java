@@ -301,12 +301,11 @@ class ItemServiceImplTest {
             }
         };
         Page<ItemView> testPageOfItems = new PageImpl<>(List.of(itemView));
-        when(itemRepository.findByItemIdAndUserId(testUserId, LocalDateTime.parse(LocalDateTime.now().format(formatter)), pageable)).thenReturn(testPageOfItems);
+        when(itemRepository.findByItemIdAndUserId(testUserId, pageable)).thenReturn(testPageOfItems);
 
         List<ItemDetails> actualList = itemService
                 .findListOfItemsByUserId(
                         testUserId,
-                        LocalDateTime.parse(LocalDateTime.now().format(formatter)),
                         pageable.getPageNumber(),
                         pageable.getPageSize());
         assertFalse(actualList.isEmpty());

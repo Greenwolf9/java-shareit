@@ -110,9 +110,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDetails> findListOfItemsByUserId(Long userId, LocalDateTime dateTime, Integer from, Integer size) {
+    public List<ItemDetails> findListOfItemsByUserId(Long userId, Integer from, Integer size) {
         int p = from / size;
-        return itemRepository.findByItemIdAndUserId(userId, dateTime, PageRequest.of(p, size))
+        return itemRepository.findByItemIdAndUserId(userId, PageRequest.of(p, size))
                 .stream()
                 .map(dto -> new ItemDetails(dto.getId(),
                         dto.getName(),
